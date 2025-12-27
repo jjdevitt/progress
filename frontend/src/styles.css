@@ -47,3 +47,14 @@ h1 {
 .error {
   color: #b91c1c;
 }
+
+.ascii-bar {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Segoe UI Mono", monospace;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  color: #0f172a;
+}
+
+.ascii-bar[title] {
+  cursor: help;
+}
