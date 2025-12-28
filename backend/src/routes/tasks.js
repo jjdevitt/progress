@@ -8,6 +8,7 @@ const tasks = [
 ];
 
 router.get('/', (req, res) => {
+  console.log('Fetching all tasks');
   res.json(tasks);
 });
 
