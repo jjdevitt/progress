@@ -58,3 +58,34 @@ h1 {
 .ascii-bar[title] {
   cursor: help;
 }
+
+/* new task form */
+.new-task-form {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  align-items: center;
+}
+
+.new-task-form input[type="text"],
+.new-task-form input[type="date"],
+.new-task-form input[placeholder] {
+  padding: 8px 10px;
+  border: 1px solid #e6edf3;
+  border-radius: 6px;
+  background: #fff;
+}
+
+.new-task-form button {
+  padding: 8px 12px;
+  border: none;
+  background: var(--accent);
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.new-task-form button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

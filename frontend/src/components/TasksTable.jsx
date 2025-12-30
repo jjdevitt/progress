@@ -36,7 +36,7 @@ function renderAsciiBar(iso, options = {}) {
   )
 }
 
-export default function TasksTable({ tasks }) {
+export default function TasksTable({ tasks, onToggleCompleted }) {
   if (!Array.isArray(tasks) || tasks.length === 0) return <p>No tasks found.</p>
 
   return (
@@ -55,7 +55,14 @@ export default function TasksTable({ tasks }) {
           <tr key={t.id}>
             <td>{t.id}</td>
             <td>{t.title}</td>
-            <td>{t.completed ? 'Yes' : 'No'}</td>
+            <td>
+              <input
+                type="checkbox"
+                checked={!!t.completed}
+                onChange={(e) => onToggleCompleted && onToggleCompleted(t.id, e.target.checked)}
+                aria-label={`Toggle completed for task ${t.id}`}
+              />
+            </td>
             <td>{formatDate(t.dueDate)}</td>
             <td>{renderAsciiBar(t.dueDate)}</td>
           </tr>
