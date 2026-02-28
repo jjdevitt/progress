@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import TasksTable from './components/TasksTable'
+import Login from './components/Login'
 
 export default function App() {
+  const [authToken, setAuthToken] = useState(null)
+  const [authUser, setAuthUser] = useState(null)
   const [tasks, setTasks] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -10,7 +13,62 @@ export default function App() {
   const [newDueDate, setNewDueDate] = useState('')
   const [saving, setSaving] = useState(false)
 
+  // Check for existing session on mount
   useEffect(() => {
+    const token = localStorage.getItem('authToken')
+    const user = localStorage.getItem('authUser')
+
+    if (token && user) {
+      // Verify token is still valid
+      fetch('/api/auth/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token })
+      })
+        .then((res) => {
+          if (!res.ok) throw new Error('Session expired')
+          return res.json()
+        })
+        .then(() => {
+          setAuthToken(token)
+          setAuthUser(JSON.parse(user))
+        })
+        .catch(() => {
+          localStorage.removeItem('authToken')
+          localStorage.removeItem('authUser')
+        })
+    }
+  }, [])
+
+  function handleLogin(token, user) {
+    setAuthToken(token)
+    setAuthUser(user)
+  }
+
+  function handleLogout() {
+    if (authToken) {
+      fetch('/api/auth/logout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: authToken })
+      }).catch(console.error)
+    }
+
+    localStorage.removeItem('authToken')
+    localStorage.removeItem('authUser')
+    setAuthToken(null)
+    setAuthUser(null)
+    setTasks([])
+    setLoading(true)
+  }
+
+  // Fetch tasks when authenticated
+  useEffect(() => {
+    if (!authToken) {
+      setLoading(true)
+      return
+    }
+
     let cancelled = false
     fetch('/api/tasks')
       .then((res) => {
@@ -28,7 +86,7 @@ export default function App() {
       })
 
     return () => (cancelled = true)
-  }, [])
+  }, [authToken])
 
   function handleToggleCompleted(id, completed) {
     fetch(`/api/tasks/${id}`, {
@@ -71,10 +129,21 @@ export default function App() {
       .finally(() => setSaving(false))
   }
 
+  // Show login page if not authenticated
+  if (!authToken) {
+    return <Login onLogin={handleLogin} />
+  }
+
   return (
     <div className="app-container">
       <header>
         <h1>Tasks</h1>
+        <div className="user-info">
+          <span>Welcome, {authUser?.username}!</span>
+          <button className="logout-btn" onClick={handleLogout}>
+            Logout
+          </button>
+        </div>
       </header>
       <main>
         {loading && <p>Loading tasks…</p>}
